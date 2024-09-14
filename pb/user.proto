@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = ".;pb";
+
+service Svc2 {
+    rpc Methods(GetUserReq) returns (GetUserNamesResponse) {};
+}
+
+message GetUserReq {
+    int32 method = 1;
+    int32 waitTime = 2;
+}
+
+message GetUserNamesResponse {
+    repeated string names = 1;
+}

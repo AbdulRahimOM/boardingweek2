@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Svc2_Methods_FullMethodName = "/service_2/Methods"
+	Svc2_Methods_FullMethodName = "/Svc2/Methods"
 )
 
 // Svc2Client is the client API for Svc2 service.

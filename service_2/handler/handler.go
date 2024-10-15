@@ -41,15 +41,19 @@ func (h *Handler) Methods(ctx context.Context, req *pb.GetUserReq) (*pb.GetUserN
 		if err != nil {
 			return nil, err
 		}
+		fmt.Println(time.Now().Format("15:04:05"),"Method2 returned after WT:",req.WaitTime)
 		return &pb.GetUserNamesResponse{
 			Names: res,
 		}, nil
+	}else{
+		return nil, fmt.Errorf("method-%d not supported", req.Method)
 	}
 
 	res := <-h.responseChan
 	if res.err != nil {
 		return nil, res.err
 	}
+	fmt.Println(time.Now().Format("15:04:05"),"Method1 returned after WT:",req.WaitTime)
 	return &pb.GetUserNamesResponse{
 		Names: res.names,
 	}, nil
@@ -58,6 +62,7 @@ func (h *Handler) Methods(ctx context.Context, req *pb.GetUserReq) (*pb.GetUserN
 func method1(method1chan chan int32, db *gorm.DB, responseChan chan response) {
 	for {
 		waitTime := <-method1chan
+		fmt.Println(time.Now().Format("15:04:05"),"Method1 called, WT: ", waitTime)
 		var userNames []string
 		result := db.Table("users").Select("name").Find(&userNames)
 
@@ -72,7 +77,7 @@ func method1(method1chan chan int32, db *gorm.DB, responseChan chan response) {
 
 func method2(waitTime int32, db *gorm.DB) ([]string, error) {
 	for {
-		fmt.Println("Method2 called with waitTime: ", waitTime)
+		fmt.Println(time.Now().Format("15:04:05"),"Method2 called, WT: ", waitTime)
 
 		//get all user names
 		var userNames []string

@@ -15,76 +15,78 @@ type response struct {
 	err   error
 }
 
-type Handler struct {
-	method1chan  chan int32
+type method1Req struct {
+	waitTime     int32
 	responseChan chan response
+}
+
+type Handler struct {
+	method1chan chan method1Req
 	pb.UnimplementedSvc2Server
 }
 
 func NewHandler() *Handler {
-	method1chan := make(chan int32)
-	responseChan := make(chan response)
+	method1chan := make(chan method1Req)
 	db := config.DB
-	go method1(method1chan, db, responseChan)
+	go method1(method1chan, db)
 
 	return &Handler{
-		method1chan:  method1chan,
-		responseChan: responseChan,
+		method1chan: method1chan,
 	}
 }
 
 func (h *Handler) Methods(ctx context.Context, req *pb.GetUserReq) (*pb.GetUserNamesResponse, error) {
-
 	fmt.Println(time.Now().Format("15:04:05"), "Method", req.Method, "called, WT: ", req.WaitTime)
 	defer fmt.Println(time.Now().Format("15:04:05"), "Method", req.Method, "returned after WT:", req.WaitTime)
+
+	var res response
+
 	if req.Method == 1 {
-		h.method1chan <- req.WaitTime
-		res := <-h.responseChan
-		if res.err != nil {
-			return nil, res.err
+		responseChan := make(chan response)
+		h.method1chan <- method1Req{
+			waitTime:     req.WaitTime,
+			responseChan: responseChan,
 		}
+		res = <-responseChan
+	} else {
+		res = method2(req.WaitTime, config.DB)
+	}
+
+	if res.err != nil {
+		return nil, res.err
+	} else {
 		return &pb.GetUserNamesResponse{
 			Names: res.names,
 		}, nil
-	} else {
-		res, err := method2(req.WaitTime, config.DB)
-		if err != nil {
-			return nil, err
-		}
-		return &pb.GetUserNamesResponse{
-			Names: res,
-		}, nil
 	}
 }
 
-func method1(method1chan chan int32, db *gorm.DB, responseChan chan response) {
+func method1(method1chan chan method1Req, db *gorm.DB) {
 	for {
-		waitTime := <-method1chan
+		req := <-method1chan
 		var userNames []string
 		result := db.Table("users").Select("name").Find(&userNames)
 
-		time.Sleep(time.Duration(waitTime) * time.Second)
+		time.Sleep(time.Duration(req.waitTime) * time.Second)
 		if result.Error != nil {
-			responseChan <- response{err: result.Error}
+			req.responseChan <- response{err: result.Error}
 		} else {
-			responseChan <- response{names: userNames}
+			req.responseChan <- response{names: userNames}
 		}
 	}
 }
 
-func method2(waitTime int32, db *gorm.DB) ([]string, error) {
+func method2(waitTime int32, db *gorm.DB) response {
 	for {
-		fmt.Println(time.Now().Format("15:04:05"), "Method2 called, WT: ", waitTime)
-
 		//get all user names
 		var userNames []string
 		result := db.Table("users").Select("name").Find(&userNames)
 
 		time.Sleep(time.Duration(waitTime) * time.Second)
 		if result.Error != nil {
-			return nil, result.Error
+			return response{err: result.Error}
 		} else {
-			return userNames, nil
+			return response{names: userNames}
 		}
 
 	}

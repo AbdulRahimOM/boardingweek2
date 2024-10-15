@@ -34,6 +34,10 @@ func GetNamesList(c echo.Context) error {
 		return err
 	}
 
+	if req.Method < 1 || req.Method > 2 {
+		return domain.ErrorResponse(c, 400, "Invalid method", fmt.Errorf("method should be 1 or 2"))
+	}
+
 	res, err := handler.svc2Client.Methods(c.Request().Context(), &pb.GetUserReq{
 		Method:   req.Method,
 		WaitTime: req.WaitTime,
@@ -44,7 +48,7 @@ func GetNamesList(c echo.Context) error {
 
 	return c.JSON(200, domain.GetUserNamesRes{
 		Status:  true,
-		Message: "Names list",
+		Message: "Names list after WT: " + strconv.Itoa(int(req.WaitTime)),
 		Names:   res.Names,
 	})
 }

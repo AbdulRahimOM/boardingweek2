@@ -3,6 +3,7 @@ package config
 import (
 	//viper
 
+	"fmt"
 	"log"
 	"os"
 	"strconv"

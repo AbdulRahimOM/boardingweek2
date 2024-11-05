@@ -2,7 +2,7 @@ package handler
 
 import (
 	"boarding-week2/pb"
-	"boarding-week2/service_1/config"
+	"boarding-week2/service_2/config"
 	"context"
 	"fmt"
 	"time"
@@ -35,9 +35,19 @@ func NewHandler() *Handler {
 	}
 }
 
+var (
+	logCall = func(methodNum, waitTime int32) {
+		fmt.Println(time.Now().Format("15:04:05"), "Method", methodNum, "called, WT: ", waitTime)
+	}
+
+	logReturn = func(methodNum, waitTime int32) {
+		fmt.Println(time.Now().Format("15:04:05"), "Method", methodNum, "returned after WT:", waitTime)
+	}
+)
+
 func (h *Handler) Methods(ctx context.Context, req *pb.GetUserReq) (*pb.GetUserNamesResponse, error) {
-	fmt.Println(time.Now().Format("15:04:05"), "Method", req.Method, "called, WT: ", req.WaitTime)
-	defer fmt.Println(time.Now().Format("15:04:05"), "Method", req.Method, "returned after WT:", req.WaitTime)
+	logCall(req.Method, req.WaitTime)
+	defer logReturn(req.Method, req.WaitTime)
 
 	var res response
 

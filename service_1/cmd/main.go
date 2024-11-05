@@ -27,6 +27,10 @@ func main() {
 		userGroup.POST("/names", controller.GetNamesList)
 	}
 
-	e.Logger.Fatal(e.Start(":" + config.EnvValues.Port))
+	e.GET("/ready", func(c echo.Context) error {
+		return c.String(200, "Ready")
+	})
+
+	e.Logger.Fatal(e.Start(":" + config.EnvValues.Svc1Port))
 
 }

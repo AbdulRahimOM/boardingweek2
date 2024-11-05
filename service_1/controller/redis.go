@@ -10,13 +10,15 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-const (
+var (
 	cacheDuration = 5 * time.Second
+	ctx           = context.Background()
+	redisDB       = redis.NewClient(&redis.Options{
+		Addr:     config.EnvValues.RedisAddress,
+		Password: "",
+		DB:       0,
+	})
 )
-
-var ctx = context.Background()
-
-var redisDB *redis.Client = config.RedisDB
 
 func init() {
 	_, err := redisDB.Ping(ctx).Result()

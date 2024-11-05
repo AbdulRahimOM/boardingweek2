@@ -2,8 +2,9 @@ package config
 
 import (
 	"log"
+	"os"
 
-	"github.com/spf13/viper"
+	"github.com/joho/godotenv"
 )
 
 var EnvValues struct {
@@ -11,11 +12,11 @@ var EnvValues struct {
 }
 
 var Postgresdb struct {
-	DbHost     string `mapstructure:"DB_HOST"`
-	DbUser     string `mapstructure:"DB_USER"`
-	DbPassword string `mapstructure:"DB_PASSWORD"`
-	DbName     string `mapstructure:"DB_NAME"`
-	DbPort     string `mapstructure:"DB_PORT"`
+	Host     string
+	User     string
+	Password string
+	Name     string
+	Port     string
 }
 
 func init() {
@@ -23,23 +24,23 @@ func init() {
 }
 
 func loadConfig() {
-	viper.AddConfigPath("config")
-	viper.SetConfigName(".env")
-	viper.SetConfigType("env")
-	viper.AutomaticEnv()
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Fatalln("error occured while reading env variables, error:", err)
+	switch os.Getenv("ENVIRONMENT") {
+	case "DOCKER":
+		// nothing to do
+	case "KUBERNETES":
+		// nothing to do
+	default:
+		if err := godotenv.Load("config/.env"); err != nil {
+			log.Fatalf("Error loading .env file: %v", err)
+		}
 	}
 
-	err = viper.Unmarshal(&EnvValues)
-	if err != nil {
-		log.Fatalln("error occured while writing env values onto variables, error:", err)
-	}
+	Postgresdb.Host = os.Getenv("DB_HOST")
+	Postgresdb.User = os.Getenv("DB_USER")
+	Postgresdb.Password = os.Getenv("DB_PASSWORD")
+	Postgresdb.Name = os.Getenv("DB_NAME")
+	Postgresdb.Port = os.Getenv("DB_PORT")
 
-	err = viper.Unmarshal(&Postgresdb)
-	if err != nil {
-		log.Fatalln("error occured while writing env values onto variables, error:", err)
-	}
+	EnvValues.Svc2Port = os.Getenv("SVC2_PORT")
+
 }

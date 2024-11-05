@@ -52,7 +52,7 @@ metadata:
   name: service2
   namespace: bw2
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
     - targetPort: 4444
       port: 4444

@@ -87,17 +87,14 @@ func method1(method1chan chan method1Req, db *gorm.DB) {
 }
 
 func method2(waitTime int32, db *gorm.DB) response {
-	for {
-		//get all user names
-		var userNames []string
-		result := db.Table("users").Select("name").Find(&userNames)
+	//get all user names
+	var userNames []string
+	result := db.Table("users").Select("name").Find(&userNames)
 
-		time.Sleep(time.Duration(waitTime) * time.Second)
-		if result.Error != nil {
-			return response{err: result.Error}
-		} else {
-			return response{names: userNames}
-		}
-
+	time.Sleep(time.Duration(waitTime) * time.Second)
+	if result.Error != nil {
+		return response{err: result.Error}
+	} else {
+		return response{names: userNames}
 	}
 }

@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service2
+  namespace: bw2
+  labels:
+    app: service2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service2
+  template:
+    metadata:
+      labels:
+        app: service2
+    spec:      
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox
+          command: ['sh', '-c', 'until nc -z postgres-service  5432; do echo "Waiting for postgres..."; sleep 2; done']
+        - name: wait-for-redis
+          image: busybox
+          command: ['sh', '-c', 'until nc -z redis-service 6379; do echo Waiting for Redis...; sleep 1; done;']
+      containers:
+        - name: service2-container
+          image: abdulrahimom/svc2:local
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4444
+          resources:
+            limits:
+              memory: 212Mi
+              cpu: "0.2"
+            requests:
+              memory: 150Mi
+              cpu: "0.1"
+          envFrom:
+            - configMapRef:
+                name: configs
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: DB_PASSWORD
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service2
+  namespace: bw2
+spec:
+  type: NodePort
+  ports:
+    - targetPort: 4444
+      port: 4444
+  selector:
+    app: service2

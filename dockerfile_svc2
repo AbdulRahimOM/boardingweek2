@@ -1,0 +1,11 @@
+FROM golang:1.22-alpine AS firstStage
+
+WORKDIR /bw2/
+COPY ./ ./
+RUN go mod download
+RUN go build -o svc2main service_2/cmd/main.go
+
+FROM scratch
+COPY --from=firstStage /bw2/svc2main /
+EXPOSE 4444
+ENTRYPOINT ["./svc2main"]

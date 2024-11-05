@@ -3,7 +3,6 @@ package config
 import (
 	//viper
 
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -64,8 +63,5 @@ func getEnvValues() {
 			log.Fatalf("Error converting CACHE_DURATION_IN_SEC to int: %v", err)
 		}
 	}
-
-	fmt.Println("Db: ", Db)
-	fmt.Println("EnvValues: ", EnvValues)
 
 }

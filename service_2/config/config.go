@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -43,8 +42,5 @@ func loadConfig() {
 	Postgresdb.Port = os.Getenv("DB_PORT")
 
 	EnvValues.Svc2Port = os.Getenv("SVC2_PORT")
-
-	fmt.Println("Postgresdb: ", Postgresdb)
-	fmt.Println("EnvValues: ", EnvValues)
 
 }

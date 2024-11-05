@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configs
+  namespace: bw2
+data:
+  DB_HOST: "postgres-service"
+  DB_USER: "postgres"
+  DB_PASSWORD: "1234"
+  DB_NAME: "boardingweek2"
+  DB_PORT: "5432"
+  SVC1_PORT: "1326"
+  SVC2_PORT: "4444"
+  SVC2_URL: "service2:4444"
+  REDIS_ADDRESS: "redis-service:6379"
+  ENVIROMENT: "KUBERNETES"
+  CACHE_DUR_IN_SEC: "15"
